@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Habit Tracker Dashboard</title>
+  <style>
+    /* ============ RESET & BASE ============ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f5f7fa;
+      --card: #ffffff;
+      --text: #1a1a2e;
+      --text-muted: #6b7280;
+      --primary: #6366f1;
+      --primary-light: #a5b4fc;
+      --primary-bg: #eef2ff;
+      --success: #10b981;
+      --success-bg: #d1fae5;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --border: #e5e7eb;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08);
+      --shadow-lg: 0 4px 12px rgba(0,0,0,0.1);
+      --radius: 12px;
+      --radius-sm: 8px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ============ LAYOUT ============ */
+    .app {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 24px 16px 80px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    header .date-display {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-top: 4px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-title .icon {
+      font-size: 1.15rem;
+    }
+
+    /* ============ STATS ROW ============ */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .stat-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      text-align: center;
+    }
+
+    .stat-card .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .stat-card .stat-label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-card.streak .stat-value { color: var(--warning); }
+    .stat-card.weekly .stat-value { color: var(--success); }
+
+    /* ============ PROGRESS BAR ============ */
+    .progress-section { margin-bottom: 6px; }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .progress-bar-track {
+      width: 100%;
+      height: 14px;
+      background: var(--border);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--primary-light));
+      border-radius: 99px;
+      transition: width 0.4s ease;
+    }
+
+    .progress-bar-fill.complete {
+      background: linear-gradient(90deg, var(--success), #34d399);
+    }
+
+    /* ============ HABIT LIST ============ */
+    .habit-list {
+      list-style: none;
+    }
+
+    .habit-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .habit-item:last-child { border-bottom: none; }
+
+    .habit-toggle {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 24px;
+      height: 24px;
+      border: 2px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      flex-shrink: 0;
+      display: grid;
+      place-content: center;
+      transition: all 0.15s ease;
+    }
+
+    .habit-toggle:checked {
+      background: var(--success);
+      border-color: var(--success);
+    }
+
+    .habit-toggle:checked::after {
+      content: '\2713';
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .habit-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .habit-name {
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    .habit-name.done {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+
+    .habit-xp {
+      font-size: 0.75rem;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    /* ============ CELEBRATION ============ */
+    .celebration {
+      display: none;
+      text-align: center;
+      padding: 20px;
+      background: var(--success-bg);
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+      animation: popIn 0.4s ease;
+    }
+
+    .celebration.show { display: block; }
+
+    .celebration .msg {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #065f46;
+    }
+
+    .celebration .sub {
+      font-size: 0.85rem;
+      color: #047857;
+      margin-top: 4px;
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.9); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* ============ WEEKLY VIEW ============ */
+    .week-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      text-align: center;
+    }
+
+    .week-day {
+      padding: 8px 4px;
+      border-radius: var(--radius-sm);
+      font-size: 0.78rem;
+    }
+
+    .week-day .day-label {
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .week-day .day-score {
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .week-day.today {
+      background: var(--primary-bg);
+      outline: 2px solid var(--primary);
+    }
+
+    .week-day.complete .day-score { color: var(--success); }
+    .week-day.partial .day-score { color: var(--warning); }
+    .week-day.missed .day-score { color: var(--danger); }
+    .week-day.future .day-score { color: var(--border); }
+
+    .weekend-toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 12px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    /* ============ TOGGLE SWITCH ============ */
+    .toggle-switch {
+      position: relative;
+      width: 40px;
+      height: 22px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background: var(--border);
+      border-radius: 99px;
+      transition: 0.2s;
+    }
+
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      height: 16px;
+      width: 16px;
+      left: 3px;
+      bottom: 3px;
+      background: #fff;
+      border-radius: 50%;
+      transition: 0.2s;
+    }
+
+    .toggle-switch input:checked + .toggle-slider {
+      background: var(--primary);
+    }
+
+    .toggle-switch input:checked + .toggle-slider::before {
+      transform: translateX(18px);
+    }
+
+    /* ============ MONTHLY SECTION ============ */
+    .month-summary {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .month-ring {
+      position: relative;
+      width: 80px;
+      height: 80px;
+      flex-shrink: 0;
+    }
+
+    .month-ring svg {
+      transform: rotate(-90deg);
+    }
+
+    .month-ring .ring-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .month-details {
+      flex: 1;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.8;
+    }
+
+    .month-details strong {
+      color: var(--text);
+    }
+
+    /* ============ HABIT EDITOR ============ */
+    .editor-section { display: none; }
+    .editor-section.open { display: block; }
+
+    .editor-habit {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .editor-habit:last-child { border-bottom: none; }
+
+    .editor-habit input[type="text"] {
+      flex: 1;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      outline: none;
+      min-width: 0;
+    }
+
+    .editor-habit input[type="text"]:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+    }
+
+    .editor-habit input[type="number"] {
+      width: 64px;
+      padding: 8px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      text-align: center;
+      outline: none;
+    }
+
+    .editor-habit input[type="number"]:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+    }
+
+    .xp-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    /* ============ BUTTONS ============ */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .btn-primary:hover { background: #4f46e5; }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-muted);
+    }
+
+    .btn-ghost:hover { background: var(--bg); }
+
+    .btn-danger {
+      background: transparent;
+      color: var(--danger);
+      padding: 8px;
+    }
+
+    .btn-danger:hover { background: #fef2f2; }
+
+    .editor-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+
+    /* ============ DATE NAV ============ */
+    .date-nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 4px;
+    }
+
+    .date-nav button {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 6px 12px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      transition: all 0.15s;
+    }
+
+    .date-nav button:hover {
+      background: var(--primary-bg);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .date-nav .current-date {
+      font-weight: 600;
+      font-size: 0.95rem;
+      min-width: 140px;
+      text-align: center;
+    }
+
+    /* ============ RESPONSIVE ============ */
+    @media (max-width: 480px) {
+      .stats-row { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+      .stat-card { padding: 12px 8px; }
+      .stat-card .stat-value { font-size: 1.25rem; }
+      .week-grid { gap: 3px; }
+      .week-day { padding: 6px 2px; }
+      .month-ring { width: 64px; height: 64px; }
+    }
+
+    /* ============ CONFETTI ============ */
+    .confetti-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1000;
+      overflow: hidden;
+    }
+
+    .confetti-piece {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      top: -10px;
+      animation: confettiFall 2.5s ease-out forwards;
+    }
+
+    @keyframes confettiFall {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- HEADER -->
+    <header>
+      <h1>Habit Tracker</h1>
+      <div class="date-display" id="headerDate"></div>
+    </header>
+
+    <!-- CELEBRATION -->
+    <div class="celebration" id="celebration">
+      <div class="msg" id="celebrationMsg"></div>
+      <div class="sub" id="celebrationSub"></div>
+    </div>
+
+    <!-- STATS ROW -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-value" id="todayXP">0</div>
+        <div class="stat-label">Today's XP</div>
+      </div>
+      <div class="stat-card weekly">
+        <div class="stat-value" id="weekXP">0%</div>
+        <div class="stat-label">This Week</div>
+      </div>
+      <div class="stat-card streak">
+        <div class="stat-value" id="streakCount">0</div>
+        <div class="stat-label">Day Streak</div>
+      </div>
+    </div>
+
+    <!-- DATE NAVIGATION -->
+    <div class="card">
+      <div class="date-nav">
+        <button onclick="app.changeDate(-1)">&larr; Prev</button>
+        <span class="current-date" id="currentDate"></span>
+        <button onclick="app.changeDate(1)">Next &rarr;</button>
+      </div>
+    </div>
+
+    <!-- DAILY PROGRESS -->
+    <div class="card">
+      <div class="card-title"><span class="icon">&#9744;</span> Daily Habits</div>
+      <div class="progress-section">
+        <div class="progress-header">
+          <span id="progressLabel">0 / 0 completed</span>
+          <span id="progressPercent">0%</span>
+        </div>
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" id="progressBar" style="width: 0%"></div>
+        </div>
+      </div>
+      <ul class="habit-list" id="habitList"></ul>
+    </div>
+
+    <!-- WEEKLY VIEW -->
+    <div class="card">
+      <div class="card-title"><span class="icon">&#128197;</span> This Week</div>
+      <div class="week-grid" id="weekGrid"></div>
+      <div class="weekend-toggle-row">
+        <span>Include weekends</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="weekendToggle" onchange="app.toggleWeekends()">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- MONTHLY VIEW -->
+    <div class="card">
+      <div class="card-title"><span class="icon">&#128200;</span> This Month</div>
+      <div class="month-summary">
+        <div class="month-ring">
+          <svg width="80" height="80" viewBox="0 0 80 80">
+            <circle cx="40" cy="40" r="34" fill="none" stroke="#e5e7eb" stroke-width="8"/>
+            <circle cx="40" cy="40" r="34" fill="none" stroke="#6366f1" stroke-width="8"
+              stroke-dasharray="213.6" stroke-dashoffset="213.6" stroke-linecap="round"
+              id="monthRing"/>
+          </svg>
+          <div class="ring-text" id="monthPercent">0%</div>
+        </div>
+        <div class="month-details" id="monthDetails">
+          <div>XP Earned: <strong id="monthXP">0</strong> / <strong id="monthMaxXP">0</strong></div>
+          <div>Perfect Days: <strong id="perfectDays">0</strong></div>
+          <div>Best Streak: <strong id="bestStreak">0</strong> days</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HABIT EDITOR -->
+    <div class="card">
+      <div class="card-title" style="justify-content: space-between;">
+        <span><span class="icon">&#9881;</span> Manage Habits</span>
+        <button class="btn btn-ghost" onclick="app.toggleEditor()" id="editorToggleBtn">Edit</button>
+      </div>
+      <div class="editor-section" id="editorSection">
+        <div id="editorList"></div>
+        <div class="editor-actions">
+          <button class="btn btn-primary" onclick="app.addHabit()">+ Add Habit</button>
+          <button class="btn btn-ghost" onclick="app.saveHabits()">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFETTI CONTAINER -->
+  <div class="confetti-container" id="confetti"></div>
+
+  <script>
+    // ================================================================
+    // DATA MODEL
+    // ================================================================
+    //
+    // habits: [
+    //   { id: "h1", name: "Drink water", xp: 10, active: true }
+    // ]
+    //
+    // dailyLogs: {
+    //   "2026-02-12": {
+    //     completed: ["h1", "h3"],   // IDs of completed habits
+    //     totalXP: 20,
+    //     maxXP: 50
+    //   }
+    // }
+    //
+    // settings: {
+    //   includeWeekends: false
+    // }
+    //
+    // SCORING:
+    //   - Each habit has an XP value (default 10)
+    //   - Daily score = sum of completed habit XPs
+    //   - Daily max = sum of all active habit XPs
+    //   - Day is "perfect" when dailyScore == maxXP
+    //   - Weekly score = (sum of daily scores for counted days) / (sum of daily maxes for counted days) * 100
+    //   - Monthly score = same logic for the whole month
+    //   - Streak = consecutive days (up to today) where all habits were completed
+    // ================================================================
+
+    const STORAGE_KEY = 'habit_tracker_data';
+
+    const DEFAULT_HABITS = [
+      { id: 'h1', name: 'Drink 8 glasses of water', xp: 10, active: true },
+      { id: 'h2', name: 'Exercise for 30 minutes', xp: 20, active: true },
+      { id: 'h3', name: 'Read for 20 minutes', xp: 15, active: true },
+      { id: 'h4', name: 'Meditate for 10 minutes', xp: 10, active: true },
+      { id: 'h5', name: 'No social media before noon', xp: 15, active: true },
+    ];
+
+    // ================================================================
+    // APP
+    // ================================================================
+    const app = {
+      habits: [],
+      dailyLogs: {},
+      settings: { includeWeekends: false },
+      selectedDate: null, // Date object for the day being viewed
+
+      // ---------- INIT ----------
+      init() {
+        this.selectedDate = new Date();
+        this.selectedDate.setHours(0, 0, 0, 0);
+        this.load();
+        this.render();
+      },
+
+      // ---------- PERSISTENCE ----------
+      load() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const data = JSON.parse(raw);
+            this.habits = data.habits || DEFAULT_HABITS;
+            this.dailyLogs = data.dailyLogs || {};
+            this.settings = data.settings || { includeWeekends: false };
+          } else {
+            this.habits = JSON.parse(JSON.stringify(DEFAULT_HABITS));
+          }
+        } catch {
+          this.habits = JSON.parse(JSON.stringify(DEFAULT_HABITS));
+        }
+      },
+
+      save() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          habits: this.habits,
+          dailyLogs: this.dailyLogs,
+          settings: this.settings,
+        }));
+      },
+
+      // ---------- DATE HELPERS ----------
+      dateKey(d) {
+        const dd = d || this.selectedDate;
+        return dd.toISOString().split('T')[0];
+      },
+
+      todayKey() {
+        const t = new Date();
+        t.setHours(0, 0, 0, 0);
+        return this.dateKey(t);
+      },
+
+      isToday() {
+        return this.dateKey() === this.todayKey();
+      },
+
+      formatDate(d) {
+        return d.toLocaleDateString('en-US', {
+          weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
+        });
+      },
+
+      changeDate(delta) {
+        this.selectedDate.setDate(this.selectedDate.getDate() + delta);
+        this.render();
+      },
+
+      // ---------- DAILY LOG ----------
+      getLog(dateKey) {
+        return this.dailyLogs[dateKey] || { completed: [], totalXP: 0, maxXP: 0 };
+      },
+
+      activeHabits() {
+        return this.habits.filter(h => h.active);
+      },
+
+      maxDailyXP() {
+        return this.activeHabits().reduce((sum, h) => sum + h.xp, 0);
+      },
+
+      toggleHabit(habitId) {
+        const key = this.dateKey();
+        if (!this.dailyLogs[key]) {
+          this.dailyLogs[key] = { completed: [], totalXP: 0, maxXP: this.maxDailyXP() };
+        }
+        const log = this.dailyLogs[key];
+        const idx = log.completed.indexOf(habitId);
+        if (idx >= 0) {
+          log.completed.splice(idx, 1);
+        } else {
+          log.completed.push(habitId);
+        }
+        // Recalculate XP
+        log.totalXP = log.completed.reduce((sum, id) => {
+          const h = this.habits.find(hh => hh.id === id);
+          return sum + (h ? h.xp : 0);
+        }, 0);
+        log.maxXP = this.maxDailyXP();
+        this.save();
+        this.render();
+
+        // Check celebrations
+        if (log.totalXP === log.maxXP && log.maxXP > 0) {
+          this.celebrate('day');
+        }
+      },
+
+      // ---------- SCORING ----------
+      getWeekDates() {
+        const d = new Date(this.selectedDate);
+        const day = d.getDay();
+        const monday = new Date(d);
+        monday.setDate(d.getDate() - ((day + 6) % 7));
+        const days = [];
+        for (let i = 0; i < 7; i++) {
+          const dd = new Date(monday);
+          dd.setDate(monday.getDate() + i);
+          days.push(dd);
+        }
+        return days;
+      },
+
+      weeklyScore() {
+        const days = this.getWeekDates();
+        let earned = 0;
+        let possible = 0;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        for (const d of days) {
+          if (d > today) continue; // skip future
+          const dayOfWeek = d.getDay(); // 0=Sun, 6=Sat
+          if (!this.settings.includeWeekends && (dayOfWeek === 0 || dayOfWeek === 6)) continue;
+
+          const log = this.getLog(this.dateKey(d));
+          const maxXP = log.maxXP || this.maxDailyXP();
+          earned += log.totalXP;
+          possible += maxXP;
+        }
+        return possible > 0 ? Math.round((earned / possible) * 100) : 0;
+      },
+
+      monthlyStats() {
+        const year = this.selectedDate.getFullYear();
+        const month = this.selectedDate.getMonth();
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        let earned = 0;
+        let possible = 0;
+        let perfect = 0;
+
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        for (let day = 1; day <= daysInMonth; day++) {
+          const d = new Date(year, month, day);
+          if (d > today) break;
+          const key = this.dateKey(d);
+          const log = this.getLog(key);
+          const maxXP = log.maxXP || this.maxDailyXP();
+          earned += log.totalXP;
+          possible += maxXP;
+          if (log.totalXP >= maxXP && maxXP > 0) perfect++;
+        }
+
+        const percent = possible > 0 ? Math.round((earned / possible) * 100) : 0;
+        return { earned, possible, percent, perfect };
+      },
+
+      // ---------- STREAK ----------
+      calculateStreak() {
+        let streak = 0;
+        const d = new Date();
+        d.setHours(0, 0, 0, 0);
+
+        // Check if today is completed; if not, start from yesterday
+        const todayLog = this.getLog(this.dateKey(d));
+        const todayMax = todayLog.maxXP || this.maxDailyXP();
+        if (todayLog.totalXP < todayMax || todayMax === 0) {
+          d.setDate(d.getDate() - 1);
+        }
+
+        while (true) {
+          const key = this.dateKey(d);
+          const log = this.getLog(key);
+          const maxXP = log.maxXP || this.maxDailyXP();
+          if (maxXP === 0) break;
+          if (log.totalXP >= maxXP) {
+            streak++;
+            d.setDate(d.getDate() - 1);
+          } else {
+            break;
+          }
+        }
+        return streak;
+      },
+
+      bestMonthStreak() {
+        const year = this.selectedDate.getFullYear();
+        const month = this.selectedDate.getMonth();
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        let best = 0;
+        let current = 0;
+        for (let day = 1; day <= daysInMonth; day++) {
+          const d = new Date(year, month, day);
+          if (d > today) break;
+          const log = this.getLog(this.dateKey(d));
+          const maxXP = log.maxXP || this.maxDailyXP();
+          if (maxXP > 0 && log.totalXP >= maxXP) {
+            current++;
+            best = Math.max(best, current);
+          } else {
+            current = 0;
+          }
+        }
+        return best;
+      },
+
+      // ---------- CELEBRATIONS ----------
+      celebrate(type) {
+        const el = document.getElementById('celebration');
+        const msg = document.getElementById('celebrationMsg');
+        const sub = document.getElementById('celebrationSub');
+
+        if (type === 'day') {
+          msg.textContent = 'Perfect Day!';
+          sub.textContent = 'You completed all your habits today. Keep it going!';
+        } else if (type === 'week') {
+          msg.textContent = 'Amazing Week!';
+          sub.textContent = 'You hit 100% for the week. You\'re on fire!';
+        } else if (type === 'month') {
+          msg.textContent = 'Incredible Month!';
+          sub.textContent = 'You crushed it this entire month. Legend!';
+        }
+
+        el.classList.add('show');
+        this.spawnConfetti();
+        setTimeout(() => el.classList.remove('show'), 4000);
+      },
+
+      spawnConfetti() {
+        const container = document.getElementById('confetti');
+        const colors = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#ec4899', '#8b5cf6'];
+        for (let i = 0; i < 40; i++) {
+          const piece = document.createElement('div');
+          piece.className = 'confetti-piece';
+          piece.style.left = Math.random() * 100 + '%';
+          piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+          piece.style.animationDelay = Math.random() * 0.8 + 's';
+          piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+          piece.style.width = (6 + Math.random() * 8) + 'px';
+          piece.style.height = (6 + Math.random() * 8) + 'px';
+          container.appendChild(piece);
+        }
+        setTimeout(() => { container.innerHTML = ''; }, 3500);
+      },
+
+      // ---------- EDITOR ----------
+      toggleEditor() {
+        const section = document.getElementById('editorSection');
+        const btn = document.getElementById('editorToggleBtn');
+        const isOpen = section.classList.toggle('open');
+        btn.textContent = isOpen ? 'Close' : 'Edit';
+        if (isOpen) this.renderEditor();
+      },
+
+      renderEditor() {
+        const list = document.getElementById('editorList');
+        list.innerHTML = this.habits.map((h, i) => `
+          <div class="editor-habit">
+            <input type="text" value="${this.escapeHtml(h.name)}" data-index="${i}" data-field="name"
+              placeholder="Habit name" onchange="app.updateEditorField(this)">
+            <input type="number" value="${h.xp}" min="1" max="100" data-index="${i}" data-field="xp"
+              onchange="app.updateEditorField(this)">
+            <span class="xp-label">XP</span>
+            <button class="btn btn-danger" onclick="app.removeHabit(${i})" title="Delete">&times;</button>
+          </div>
+        `).join('');
+      },
+
+      updateEditorField(el) {
+        const i = parseInt(el.dataset.index);
+        const field = el.dataset.field;
+        if (field === 'xp') {
+          this.habits[i].xp = Math.max(1, parseInt(el.value) || 10);
+        } else {
+          this.habits[i].name = el.value.trim() || this.habits[i].name;
+        }
+      },
+
+      addHabit() {
+        const id = 'h' + Date.now();
+        this.habits.push({ id, name: 'New Habit', xp: 10, active: true });
+        this.renderEditor();
+      },
+
+      removeHabit(index) {
+        this.habits.splice(index, 1);
+        this.renderEditor();
+      },
+
+      saveHabits() {
+        // Sync editor inputs back
+        const inputs = document.querySelectorAll('#editorList input');
+        inputs.forEach(el => {
+          const i = parseInt(el.dataset.index);
+          const field = el.dataset.field;
+          if (field === 'xp') {
+            this.habits[i].xp = Math.max(1, parseInt(el.value) || 10);
+          } else if (field === 'name') {
+            this.habits[i].name = el.value.trim() || this.habits[i].name;
+          }
+        });
+        this.save();
+        this.toggleEditor();
+        this.render();
+      },
+
+      // ---------- WEEKEND TOGGLE ----------
+      toggleWeekends() {
+        this.settings.includeWeekends = document.getElementById('weekendToggle').checked;
+        this.save();
+        this.render();
+      },
+
+      // ---------- RENDER ----------
+      render() {
+        // Header date
+        document.getElementById('headerDate').textContent = this.isToday()
+          ? 'Today - ' + this.formatDate(this.selectedDate)
+          : this.formatDate(this.selectedDate);
+
+        // Date nav
+        document.getElementById('currentDate').textContent = this.formatDate(this.selectedDate);
+
+        // Weekend toggle
+        document.getElementById('weekendToggle').checked = this.settings.includeWeekends;
+
+        this.renderHabits();
+        this.renderStats();
+        this.renderWeek();
+        this.renderMonth();
+      },
+
+      renderHabits() {
+        const key = this.dateKey();
+        const log = this.getLog(key);
+        const active = this.activeHabits();
+        const list = document.getElementById('habitList');
+
+        list.innerHTML = active.map(h => {
+          const done = log.completed.includes(h.id);
+          return `
+            <li class="habit-item">
+              <input type="checkbox" class="habit-toggle"
+                ${done ? 'checked' : ''}
+                onchange="app.toggleHabit('${h.id}')">
+              <div class="habit-info">
+                <div class="habit-name ${done ? 'done' : ''}">${this.escapeHtml(h.name)}</div>
+                <div class="habit-xp">${h.xp} XP</div>
+              </div>
+            </li>
+          `;
+        }).join('');
+
+        // Progress
+        const completed = active.filter(h => log.completed.includes(h.id)).length;
+        const total = active.length;
+        const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+        document.getElementById('progressLabel').textContent = `${completed} / ${total} completed`;
+        document.getElementById('progressPercent').textContent = `${percent}%`;
+
+        const bar = document.getElementById('progressBar');
+        bar.style.width = percent + '%';
+        bar.classList.toggle('complete', percent === 100);
+      },
+
+      renderStats() {
+        const key = this.dateKey();
+        const log = this.getLog(key);
+        const streak = this.calculateStreak();
+
+        document.getElementById('todayXP').textContent = log.totalXP;
+        document.getElementById('weekXP').textContent = this.weeklyScore() + '%';
+        document.getElementById('streakCount').textContent = streak;
+
+        // Check for weekly celebration
+        if (this.weeklyScore() === 100) {
+          // Only auto-celebrate if today is the end of a tracked period
+        }
+      },
+
+      renderWeek() {
+        const days = this.getWeekDates();
+        const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        const todayStr = this.todayKey();
+        const grid = document.getElementById('weekGrid');
+
+        grid.innerHTML = days.map((d, i) => {
+          const key = this.dateKey(d);
+          const log = this.getLog(key);
+          const maxXP = log.maxXP || this.maxDailyXP();
+          const percent = maxXP > 0 ? Math.round((log.totalXP / maxXP) * 100) : 0;
+          const isToday = key === todayStr;
+          const isFuture = d > new Date();
+
+          let cls = '';
+          if (isFuture) cls = 'future';
+          else if (percent === 100) cls = 'complete';
+          else if (percent > 0) cls = 'partial';
+          else cls = 'missed';
+
+          return `
+            <div class="week-day ${cls} ${isToday ? 'today' : ''}">
+              <div class="day-label">${labels[i]}</div>
+              <div class="day-score">${isFuture ? '-' : percent + '%'}</div>
+            </div>
+          `;
+        }).join('');
+      },
+
+      renderMonth() {
+        const stats = this.monthlyStats();
+        const bestSt = this.bestMonthStreak();
+
+        // Ring
+        const circumference = 2 * Math.PI * 34; // ~213.6
+        const offset = circumference - (stats.percent / 100) * circumference;
+        document.getElementById('monthRing').setAttribute('stroke-dashoffset', offset);
+        document.getElementById('monthPercent').textContent = stats.percent + '%';
+
+        // Details
+        document.getElementById('monthXP').textContent = stats.earned;
+        document.getElementById('monthMaxXP').textContent = stats.possible;
+        document.getElementById('perfectDays').textContent = stats.perfect;
+        document.getElementById('bestStreak').textContent = bestSt;
+
+        // Monthly celebration check
+        if (stats.percent === 100 && stats.possible > 0) {
+          // Celebrate only if a reasonable number of days have passed
+          const today = new Date();
+          if (today.getDate() >= 28) {
+            this.celebrate('month');
+          }
+        }
+      },
+
+      // ---------- UTIL ----------
+      escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+      }
+    };
+
+    // Boot
+    app.init();
+  </script>
+</body>
+</html>
