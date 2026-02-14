@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Habit Tracker Dashboard</title>
+    <style>
+        /* ===== RESET & BASE ===== */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #f0f2f5;
+            color: #1a1a2e;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* ===== LAYOUT ===== */
+        .dashboard {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #1a1a2e;
+            margin-bottom: 4px;
+        }
+
+        .header .date-display {
+            font-size: 15px;
+            color: #666;
+        }
+
+        /* ===== CARDS ===== */
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 14px;
+            color: #1a1a2e;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* ===== SCORE STRIP ===== */
+        .score-strip {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .score-box {
+            background: #fff;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .score-box .label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #888;
+            margin-bottom: 4px;
+        }
+
+        .score-box .value {
+            font-size: 28px;
+            font-weight: 800;
+            color: #4361ee;
+        }
+
+        .score-box .sub {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 2px;
+        }
+
+        /* ===== PROGRESS BAR ===== */
+        .progress-container {
+            margin-bottom: 6px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 6px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 14px;
+            background: #e9ecef;
+            border-radius: 7px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4361ee, #3a86ff);
+            border-radius: 7px;
+            transition: width 0.4s ease;
+            min-width: 0;
+        }
+
+        .progress-fill.complete {
+            background: linear-gradient(90deg, #2ec4b6, #06d6a0);
+        }
+
+        /* ===== HABIT LIST ===== */
+        .habit-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f2f5;
+            gap: 12px;
+        }
+
+        .habit-item:last-child { border-bottom: none; }
+
+        .habit-checkbox {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            border: 2px solid #ccc;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s;
+            background: #fff;
+        }
+
+        .habit-checkbox.checked {
+            background: #4361ee;
+            border-color: #4361ee;
+        }
+
+        .habit-checkbox.checked::after {
+            content: '✓';
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .habit-info {
+            flex: 1;
+        }
+
+        .habit-name {
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .habit-xp {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .habit-name.done {
+            text-decoration: line-through;
+            color: #aaa;
+        }
+
+        /* ===== STREAK ===== */
+        .streak-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 10px 0;
+        }
+
+        .streak-fire {
+            font-size: 40px;
+            line-height: 1;
+        }
+
+        .streak-count {
+            font-size: 42px;
+            font-weight: 800;
+            color: #e63946;
+        }
+
+        .streak-label {
+            font-size: 14px;
+            color: #888;
+            text-align: center;
+        }
+
+        /* ===== WEEK VIEW ===== */
+        .week-row {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .week-day {
+            text-align: center;
+            padding: 8px 4px;
+            border-radius: 8px;
+            font-size: 12px;
+            background: #f8f9fa;
+        }
+
+        .week-day .day-label {
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: #666;
+        }
+
+        .week-day .day-score {
+            font-weight: 800;
+            color: #4361ee;
+            font-size: 14px;
+        }
+
+        .week-day.today {
+            background: #eef1ff;
+            border: 2px solid #4361ee;
+        }
+
+        .week-day.complete {
+            background: #d4f5e9;
+        }
+
+        .week-day.weekend {
+            opacity: 0.5;
+        }
+
+        .week-day.weekend.active {
+            opacity: 1;
+        }
+
+        /* ===== CONGRATULATIONS ===== */
+        .congrats {
+            display: none;
+            background: linear-gradient(135deg, #06d6a0, #2ec4b6);
+            color: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 16px;
+            animation: slideIn 0.4s ease;
+        }
+
+        .congrats.show { display: block; }
+
+        .congrats .congrats-icon { font-size: 36px; margin-bottom: 6px; }
+        .congrats .congrats-text { font-size: 18px; font-weight: 700; }
+        .congrats .congrats-sub { font-size: 13px; opacity: 0.9; margin-top: 4px; }
+
+        @keyframes slideIn {
+            from { transform: translateY(-10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* ===== SETTINGS / EDIT PANEL ===== */
+        .settings-btn {
+            background: none;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: 13px;
+            cursor: pointer;
+            color: #666;
+            transition: all 0.2s;
+        }
+
+        .settings-btn:hover {
+            background: #f0f2f5;
+            border-color: #bbb;
+        }
+
+        .edit-panel {
+            display: none;
+            margin-top: 14px;
+            border-top: 1px solid #eee;
+            padding-top: 14px;
+        }
+
+        .edit-panel.show { display: block; }
+
+        .edit-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .edit-row input[type="text"] {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .edit-row input[type="number"] {
+            width: 70px;
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .edit-row button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .btn-remove {
+            background: #fee;
+            color: #e63946;
+        }
+
+        .btn-remove:hover { background: #fdd; }
+
+        .btn-add {
+            background: #4361ee;
+            color: #fff;
+            width: 100%;
+            padding: 10px;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        .btn-add:hover { background: #3651d4; }
+
+        /* ===== WEEKEND TOGGLE ===== */
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0;
+        }
+
+        .toggle-row label {
+            font-size: 14px;
+            color: #555;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: #ccc;
+            border-radius: 12px;
+            transition: 0.3s;
+        }
+
+        .toggle-slider::before {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            left: 3px;
+            bottom: 3px;
+            background: #fff;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background: #4361ee;
+        }
+
+        .toggle-switch input:checked + .toggle-slider::before {
+            transform: translateX(20px);
+        }
+
+        /* ===== NAV DATE ===== */
+        .date-nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 4px;
+        }
+
+        .date-nav button {
+            background: none;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 16px;
+            color: #666;
+        }
+
+        .date-nav button:hover { background: #f0f2f5; }
+
+        .date-nav .current-date {
+            font-size: 15px;
+            font-weight: 600;
+            min-width: 180px;
+            text-align: center;
+        }
+
+        .today-btn {
+            font-size: 12px !important;
+            padding: 4px 10px !important;
+            color: #4361ee !important;
+            border-color: #4361ee !important;
+        }
+
+        /* ===== MONTH GRID ===== */
+        .month-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 3px;
+        }
+
+        .month-grid .mg-day {
+            aspect-ratio: 1;
+            border-radius: 4px;
+            background: #f0f2f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #aaa;
+        }
+
+        .month-grid .mg-day.has-data { background: #dbeafe; color: #4361ee; font-weight: 600; }
+        .month-grid .mg-day.perfect { background: #06d6a0; color: #fff; }
+        .month-grid .mg-day.today-cell { border: 2px solid #4361ee; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 500px) {
+            body { padding: 10px; }
+            .score-strip { grid-template-columns: 1fr; }
+            .score-box .value { font-size: 22px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="dashboard">
+    <!-- HEADER -->
+    <div class="header">
+        <h1>Habit Tracker</h1>
+        <div class="date-nav">
+            <button onclick="navigateDay(-1)">&#9664;</button>
+            <span class="current-date" id="currentDate"></span>
+            <button onclick="navigateDay(1)">&#9654;</button>
+            <button class="today-btn" onclick="goToToday()">Vandaag</button>
+        </div>
+    </div>
+
+    <!-- CONGRATULATIONS -->
+    <div class="congrats" id="congrats">
+        <div class="congrats-icon" id="congratsIcon"></div>
+        <div class="congrats-text" id="congratsText"></div>
+        <div class="congrats-sub" id="congratsSub"></div>
+    </div>
+
+    <!-- SCORE STRIP -->
+    <div class="score-strip">
+        <div class="score-box">
+            <div class="label">Dag XP</div>
+            <div class="value" id="dayXP">0</div>
+            <div class="sub" id="dayMax">/ 0 XP</div>
+        </div>
+        <div class="score-box">
+            <div class="label">Week XP</div>
+            <div class="value" id="weekXP">0</div>
+            <div class="sub" id="weekMax">/ 0 XP</div>
+        </div>
+        <div class="score-box">
+            <div class="label">Maand XP</div>
+            <div class="value" id="monthXP">0</div>
+            <div class="sub" id="monthMax">/ 0 XP</div>
+        </div>
+    </div>
+
+    <!-- DAY PROGRESS -->
+    <div class="card">
+        <div class="card-title">Voortgang vandaag</div>
+        <div class="progress-container">
+            <div class="progress-header">
+                <span id="progressLabel">0 van 0 gewoontes</span>
+                <span id="progressPercent">0%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DAILY CHECKLIST -->
+    <div class="card">
+        <div class="card-title" style="justify-content: space-between;">
+            <span>Gewoontes</span>
+            <button class="settings-btn" onclick="toggleEditPanel()">Bewerken</button>
+        </div>
+        <div id="habitList"></div>
+
+        <!-- EDIT PANEL -->
+        <div class="edit-panel" id="editPanel">
+            <div id="editList"></div>
+            <button class="btn-add" onclick="addHabit()">+ Gewoonte toevoegen</button>
+            <div class="toggle-row" style="margin-top: 12px;">
+                <label>Weekenden meetellen</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="weekendToggle" onchange="toggleWeekends()">
+                    <span class="toggle-slider"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STREAK -->
+    <div class="card">
+        <div class="card-title">Streak</div>
+        <div class="streak-display">
+            <span class="streak-fire">🔥</span>
+            <span class="streak-count" id="streakCount">0</span>
+        </div>
+        <div class="streak-label" id="streakLabel">Voltooi al je gewoontes om je streak te starten!</div>
+    </div>
+
+    <!-- WEEK VIEW -->
+    <div class="card">
+        <div class="card-title">Deze week</div>
+        <div class="week-row" id="weekRow"></div>
+        <div class="progress-container">
+            <div class="progress-header">
+                <span>Weekscore</span>
+                <span id="weekPercent">0%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="weekFill" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MONTH VIEW -->
+    <div class="card">
+        <div class="card-title" id="monthTitle">Maandoverzicht</div>
+        <div class="month-grid" id="monthGrid"></div>
+        <div class="progress-container" style="margin-top: 12px;">
+            <div class="progress-header">
+                <span>Maandscore</span>
+                <span id="monthPercent">0%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="monthFill" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ===== DATA MODEL =====
+// Stored in localStorage:
+// "habits"       → [{id, name, xp}]
+// "log_YYYY-MM-DD" → {completed: [habitId, ...]}
+// "settings"     → {includeWeekends: bool}
+
+const STORAGE_HABITS = 'ht_habits';
+const STORAGE_SETTINGS = 'ht_settings';
+
+const DEFAULT_HABITS = [
+    { id: 1, name: 'Water drinken (2L)', xp: 10 },
+    { id: 2, name: 'Sporten / bewegen', xp: 20 },
+    { id: 3, name: 'Lezen (30 min)', xp: 15 },
+    { id: 4, name: 'Meditatie', xp: 10 },
+    { id: 5, name: 'Gezond eten', xp: 15 },
+];
+
+const DAY_NAMES_SHORT = ['zo', 'ma', 'di', 'wo', 'do', 'vr', 'za'];
+const MONTH_NAMES = ['januari', 'februari', 'maart', 'april', 'mei', 'juni',
+    'juli', 'augustus', 'september', 'oktober', 'november', 'december'];
+
+let currentViewDate = new Date();
+let habits = [];
+let settings = { includeWeekends: false };
+
+// ===== INIT =====
+function init() {
+    loadData();
+    render();
+}
+
+function loadData() {
+    const stored = localStorage.getItem(STORAGE_HABITS);
+    if (stored) {
+        habits = JSON.parse(stored);
+    } else {
+        habits = DEFAULT_HABITS.map(h => ({ ...h }));
+        saveHabits();
+    }
+
+    const storedSettings = localStorage.getItem(STORAGE_SETTINGS);
+    if (storedSettings) {
+        settings = JSON.parse(storedSettings);
+    }
+}
+
+function saveHabits() {
+    localStorage.setItem(STORAGE_HABITS, JSON.stringify(habits));
+}
+
+function saveSettings() {
+    localStorage.setItem(STORAGE_SETTINGS, JSON.stringify(settings));
+}
+
+function getLogKey(date) {
+    return 'ht_log_' + formatDate(date);
+}
+
+function formatDate(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+}
+
+function getDayLog(date) {
+    const raw = localStorage.getItem(getLogKey(date));
+    if (raw) return JSON.parse(raw);
+    return { completed: [] };
+}
+
+function saveDayLog(date, log) {
+    localStorage.setItem(getLogKey(date), JSON.stringify(log));
+}
+
+// ===== SCORING LOGIC =====
+// Day XP = sum of XP for all completed habits that day
+// Week XP = sum of day XP for Mon-Fri (or Mon-Sun if weekends enabled)
+// Month XP = sum of all day XP in the current month
+// Day Max XP = sum of all habit XP values
+// Streak = consecutive days (backwards from today) where all habits were completed
+
+function getDayXP(date) {
+    const log = getDayLog(date);
+    let total = 0;
+    for (const id of log.completed) {
+        const habit = habits.find(h => h.id === id);
+        if (habit) total += habit.xp;
+    }
+    return total;
+}
+
+function getMaxDayXP() {
+    return habits.reduce((sum, h) => sum + h.xp, 0);
+}
+
+function isDayComplete(date) {
+    const log = getDayLog(date);
+    return habits.length > 0 && habits.every(h => log.completed.includes(h.id));
+}
+
+function isCountedDay(date) {
+    const dow = date.getDay(); // 0=Sun, 6=Sat
+    if (dow === 0 || dow === 6) return settings.includeWeekends;
+    return true;
+}
+
+function getWeekDates(date) {
+    const d = new Date(date);
+    const dow = d.getDay();
+    const monday = new Date(d);
+    monday.setDate(d.getDate() - ((dow + 6) % 7)); // go to Monday
+    const dates = [];
+    for (let i = 0; i < 7; i++) {
+        const day = new Date(monday);
+        day.setDate(monday.getDate() + i);
+        dates.push(day);
+    }
+    return dates;
+}
+
+function getWeekXP(date) {
+    const days = getWeekDates(date);
+    let total = 0;
+    for (const d of days) {
+        if (isCountedDay(d)) total += getDayXP(d);
+    }
+    return total;
+}
+
+function getWeekMaxXP(date) {
+    const days = getWeekDates(date);
+    const maxDay = getMaxDayXP();
+    let count = 0;
+    for (const d of days) {
+        if (isCountedDay(d)) count++;
+    }
+    return maxDay * count;
+}
+
+function getMonthXP(date) {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    let total = 0;
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    for (let i = 1; i <= daysInMonth; i++) {
+        const d = new Date(year, month, i);
+        if (isCountedDay(d)) total += getDayXP(d);
+    }
+    return total;
+}
+
+function getMonthMaxXP(date) {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const maxDay = getMaxDayXP();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    let count = 0;
+    for (let i = 1; i <= daysInMonth; i++) {
+        const d = new Date(year, month, i);
+        if (isCountedDay(d)) count++;
+    }
+    return maxDay * count;
+}
+
+function getStreak() {
+    let streak = 0;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    let d = new Date(today);
+
+    // If today isn't complete yet, still allow streak from yesterday
+    if (!isDayComplete(d)) {
+        // Check if today should be counted
+        if (isCountedDay(d)) {
+            // Today not done yet; streak counts from yesterday
+            d.setDate(d.getDate() - 1);
+        } else {
+            d.setDate(d.getDate() - 1);
+        }
+    }
+
+    while (true) {
+        if (!isCountedDay(d)) {
+            // Skip non-counted days (weekends when disabled)
+            d.setDate(d.getDate() - 1);
+            continue;
+        }
+        if (isDayComplete(d)) {
+            streak++;
+            d.setDate(d.getDate() - 1);
+        } else {
+            break;
+        }
+    }
+    return streak;
+}
+
+// ===== RENDERING =====
+function render() {
+    renderDate();
+    renderScores();
+    renderProgress();
+    renderHabits();
+    renderStreak();
+    renderWeek();
+    renderMonth();
+    checkCongrats();
+    document.getElementById('weekendToggle').checked = settings.includeWeekends;
+}
+
+function renderDate() {
+    const d = currentViewDate;
+    const today = new Date();
+    const isToday = formatDate(d) === formatDate(today);
+    const dayName = ['zondag', 'maandag', 'dinsdag', 'woensdag', 'donderdag', 'vrijdag', 'zaterdag'][d.getDay()];
+    const monthName = MONTH_NAMES[d.getMonth()];
+    const label = isToday ? 'Vandaag' : `${dayName}`;
+    document.getElementById('currentDate').textContent =
+        `${label}, ${d.getDate()} ${monthName} ${d.getFullYear()}`;
+}
+
+function renderScores() {
+    const dayXP = getDayXP(currentViewDate);
+    const maxDay = getMaxDayXP();
+    const weekXP = getWeekXP(currentViewDate);
+    const weekMax = getWeekMaxXP(currentViewDate);
+    const monthXP = getMonthXP(currentViewDate);
+    const monthMax = getMonthMaxXP(currentViewDate);
+
+    document.getElementById('dayXP').textContent = dayXP;
+    document.getElementById('dayMax').textContent = `/ ${maxDay} XP`;
+    document.getElementById('weekXP').textContent = weekXP;
+    document.getElementById('weekMax').textContent = `/ ${weekMax} XP`;
+    document.getElementById('monthXP').textContent = monthXP;
+    document.getElementById('monthMax').textContent = `/ ${monthMax} XP`;
+}
+
+function renderProgress() {
+    const log = getDayLog(currentViewDate);
+    const done = habits.filter(h => log.completed.includes(h.id)).length;
+    const total = habits.length;
+    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+
+    document.getElementById('progressLabel').textContent = `${done} van ${total} gewoontes`;
+    document.getElementById('progressPercent').textContent = `${pct}%`;
+    const fill = document.getElementById('progressFill');
+    fill.style.width = pct + '%';
+    fill.classList.toggle('complete', pct === 100);
+}
+
+function renderHabits() {
+    const log = getDayLog(currentViewDate);
+    const container = document.getElementById('habitList');
+    container.innerHTML = '';
+
+    for (const habit of habits) {
+        const checked = log.completed.includes(habit.id);
+        const item = document.createElement('div');
+        item.className = 'habit-item';
+        item.innerHTML = `
+            <div class="habit-checkbox ${checked ? 'checked' : ''}"
+                 onclick="toggleHabit(${habit.id})"></div>
+            <div class="habit-info">
+                <div class="habit-name ${checked ? 'done' : ''}">${escapeHtml(habit.name)}</div>
+                <div class="habit-xp">${habit.xp} XP</div>
+            </div>
+        `;
+        container.appendChild(item);
+    }
+}
+
+function renderStreak() {
+    const streak = getStreak();
+    document.getElementById('streakCount').textContent = streak;
+    if (streak === 0) {
+        document.getElementById('streakLabel').textContent = 'Voltooi al je gewoontes om je streak te starten!';
+    } else if (streak === 1) {
+        document.getElementById('streakLabel').textContent = '1 dag op rij — goed begin!';
+    } else {
+        document.getElementById('streakLabel').textContent = `${streak} dagen op rij — geweldig!`;
+    }
+}
+
+function renderWeek() {
+    const days = getWeekDates(currentViewDate);
+    const today = new Date();
+    const container = document.getElementById('weekRow');
+    container.innerHTML = '';
+
+    for (const d of days) {
+        const dow = d.getDay();
+        const isToday = formatDate(d) === formatDate(today);
+        const isWeekend = dow === 0 || dow === 6;
+        const active = !isWeekend || settings.includeWeekends;
+        const xp = active ? getDayXP(d) : '-';
+        const complete = active && isDayComplete(d);
+
+        let classes = 'week-day';
+        if (isToday) classes += ' today';
+        if (complete) classes += ' complete';
+        if (isWeekend) classes += ' weekend';
+        if (isWeekend && settings.includeWeekends) classes += ' active';
+
+        const dayEl = document.createElement('div');
+        dayEl.className = classes;
+        dayEl.innerHTML = `
+            <div class="day-label">${DAY_NAMES_SHORT[dow]}</div>
+            <div class="day-score">${xp}</div>
+        `;
+        container.appendChild(dayEl);
+    }
+
+    // Week progress
+    const weekXP = getWeekXP(currentViewDate);
+    const weekMax = getWeekMaxXP(currentViewDate);
+    const pct = weekMax > 0 ? Math.round((weekXP / weekMax) * 100) : 0;
+    document.getElementById('weekPercent').textContent = pct + '%';
+    const fill = document.getElementById('weekFill');
+    fill.style.width = pct + '%';
+    fill.classList.toggle('complete', pct === 100);
+}
+
+function renderMonth() {
+    const year = currentViewDate.getFullYear();
+    const month = currentViewDate.getMonth();
+    const today = new Date();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const firstDow = new Date(year, month, 1).getDay();
+    // Adjust so Monday = 0
+    const offset = (firstDow + 6) % 7;
+
+    document.getElementById('monthTitle').textContent =
+        `${MONTH_NAMES[month]} ${year}`;
+
+    const grid = document.getElementById('monthGrid');
+    grid.innerHTML = '';
+
+    // Header row
+    const dayHeaders = ['ma', 'di', 'wo', 'do', 'vr', 'za', 'zo'];
+    for (const dh of dayHeaders) {
+        const el = document.createElement('div');
+        el.className = 'mg-day';
+        el.style.background = 'none';
+        el.style.fontWeight = '700';
+        el.style.color = '#888';
+        el.textContent = dh;
+        grid.appendChild(el);
+    }
+
+    // Empty cells before the 1st
+    for (let i = 0; i < offset; i++) {
+        const el = document.createElement('div');
+        el.className = 'mg-day';
+        el.style.background = 'none';
+        grid.appendChild(el);
+    }
+
+    // Day cells
+    for (let i = 1; i <= daysInMonth; i++) {
+        const d = new Date(year, month, i);
+        const el = document.createElement('div');
+        let classes = 'mg-day';
+
+        const log = getDayLog(d);
+        if (log.completed.length > 0) classes += ' has-data';
+        if (isDayComplete(d)) classes += ' perfect';
+        if (formatDate(d) === formatDate(today)) classes += ' today-cell';
+
+        el.className = classes;
+        el.textContent = i;
+        grid.appendChild(el);
+    }
+
+    // Month progress
+    const monthXP = getMonthXP(currentViewDate);
+    const monthMax = getMonthMaxXP(currentViewDate);
+    const pct = monthMax > 0 ? Math.round((monthXP / monthMax) * 100) : 0;
+    document.getElementById('monthPercent').textContent = pct + '%';
+    const fill = document.getElementById('monthFill');
+    fill.style.width = pct + '%';
+    fill.classList.toggle('complete', pct === 100);
+}
+
+function checkCongrats() {
+    const el = document.getElementById('congrats');
+    const iconEl = document.getElementById('congratsIcon');
+    const textEl = document.getElementById('congratsText');
+    const subEl = document.getElementById('congratsSub');
+
+    // Check month first (highest priority), then week, then day
+    const monthXP = getMonthXP(currentViewDate);
+    const monthMax = getMonthMaxXP(currentViewDate);
+    const weekXP = getWeekXP(currentViewDate);
+    const weekMax = getWeekMaxXP(currentViewDate);
+    const dayComplete = isDayComplete(currentViewDate);
+
+    if (monthMax > 0 && monthXP >= monthMax) {
+        el.classList.add('show');
+        iconEl.textContent = '🏆';
+        textEl.textContent = 'Perfecte maand!';
+        subEl.textContent = 'Alle gewoontes de hele maand voltooid. Ongelooflijk!';
+        return;
+    }
+
+    if (weekMax > 0 && weekXP >= weekMax) {
+        el.classList.add('show');
+        iconEl.textContent = '⭐';
+        textEl.textContent = 'Perfecte week!';
+        subEl.textContent = 'Alle gewoontes deze week voltooid. Ga zo door!';
+        return;
+    }
+
+    if (dayComplete && habits.length > 0) {
+        el.classList.add('show');
+        iconEl.textContent = '🎉';
+        textEl.textContent = 'Dag voltooid!';
+        subEl.textContent = `Je hebt ${getMaxDayXP()} XP verdiend vandaag. Geweldig!`;
+        return;
+    }
+
+    el.classList.remove('show');
+}
+
+// ===== ACTIONS =====
+function toggleHabit(id) {
+    const log = getDayLog(currentViewDate);
+    const idx = log.completed.indexOf(id);
+    if (idx === -1) {
+        log.completed.push(id);
+    } else {
+        log.completed.splice(idx, 1);
+    }
+    saveDayLog(currentViewDate, log);
+    render();
+}
+
+function navigateDay(delta) {
+    currentViewDate.setDate(currentViewDate.getDate() + delta);
+    render();
+}
+
+function goToToday() {
+    currentViewDate = new Date();
+    render();
+}
+
+function toggleWeekends() {
+    settings.includeWeekends = document.getElementById('weekendToggle').checked;
+    saveSettings();
+    render();
+}
+
+function toggleEditPanel() {
+    const panel = document.getElementById('editPanel');
+    panel.classList.toggle('show');
+    if (panel.classList.contains('show')) {
+        renderEditList();
+    }
+}
+
+function renderEditList() {
+    const container = document.getElementById('editList');
+    container.innerHTML = '';
+
+    for (const habit of habits) {
+        const row = document.createElement('div');
+        row.className = 'edit-row';
+        row.innerHTML = `
+            <input type="text" value="${escapeHtml(habit.name)}"
+                   onchange="updateHabitName(${habit.id}, this.value)">
+            <input type="number" value="${habit.xp}" min="1" max="100"
+                   onchange="updateHabitXP(${habit.id}, parseInt(this.value))">
+            <span style="font-size:12px;color:#888;">XP</span>
+            <button class="btn-remove" onclick="removeHabit(${habit.id})">✕</button>
+        `;
+        container.appendChild(row);
+    }
+}
+
+function addHabit() {
+    const maxId = habits.reduce((max, h) => Math.max(max, h.id), 0);
+    habits.push({ id: maxId + 1, name: 'Nieuwe gewoonte', xp: 10 });
+    saveHabits();
+    renderEditList();
+    render();
+}
+
+function removeHabit(id) {
+    habits = habits.filter(h => h.id !== id);
+    saveHabits();
+    renderEditList();
+    render();
+}
+
+function updateHabitName(id, name) {
+    const h = habits.find(h => h.id === id);
+    if (h) {
+        h.name = name;
+        saveHabits();
+        render();
+    }
+}
+
+function updateHabitXP(id, xp) {
+    const h = habits.find(h => h.id === id);
+    if (h && xp > 0) {
+        h.xp = xp;
+        saveHabits();
+        render();
+    }
+}
+
+// ===== UTILS =====
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+// ===== START =====
+init();
+</script>
+
+</body>
+</html>
