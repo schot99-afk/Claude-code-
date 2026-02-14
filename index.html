@@ -10,8 +10,8 @@
 
         body {
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: #f0f2f5;
-            color: #1a1a2e;
+            background: #000;
+            color: #e0e0e0;
             min-height: 100vh;
             padding: 20px;
         }
@@ -29,29 +29,55 @@
 
         .header h1 {
             font-size: 28px;
-            color: #1a1a2e;
+            color: #fff;
             margin-bottom: 4px;
         }
 
         .header .date-display {
             font-size: 15px;
-            color: #666;
+            color: #888;
+        }
+
+        /* ===== GOAL BANNER ===== */
+        .goal-banner {
+            text-align: center;
+            padding: 32px 20px;
+            margin-bottom: 28px;
+            border: 1px solid #222;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #0a0a0a, #111);
+        }
+
+        .goal-label {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #4361ee;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .goal-text {
+            font-size: 32px;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1.3;
         }
 
         /* ===== CARDS ===== */
         .card {
-            background: #fff;
+            background: #111;
             border-radius: 12px;
             padding: 20px 24px;
             margin-bottom: 16px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            border: 1px solid #222;
         }
 
         .card-title {
             font-size: 16px;
             font-weight: 700;
             margin-bottom: 14px;
-            color: #1a1a2e;
+            color: #fff;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -66,18 +92,18 @@
         }
 
         .score-box {
-            background: #fff;
+            background: #111;
             border-radius: 12px;
             padding: 16px;
             text-align: center;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            border: 1px solid #222;
         }
 
         .score-box .label {
             font-size: 12px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            color: #888;
+            color: #777;
             margin-bottom: 4px;
         }
 
@@ -89,7 +115,7 @@
 
         .score-box .sub {
             font-size: 12px;
-            color: #aaa;
+            color: #555;
             margin-top: 2px;
         }
 
@@ -102,14 +128,14 @@
             display: flex;
             justify-content: space-between;
             font-size: 13px;
-            color: #888;
+            color: #777;
             margin-bottom: 6px;
         }
 
         .progress-bar {
             width: 100%;
             height: 14px;
-            background: #e9ecef;
+            background: #222;
             border-radius: 7px;
             overflow: hidden;
         }
@@ -131,7 +157,7 @@
             display: flex;
             align-items: center;
             padding: 10px 0;
-            border-bottom: 1px solid #f0f2f5;
+            border-bottom: 1px solid #1a1a1a;
             gap: 12px;
         }
 
@@ -141,14 +167,14 @@
             width: 24px;
             height: 24px;
             border-radius: 6px;
-            border: 2px solid #ccc;
+            border: 2px solid #333;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
             transition: all 0.2s;
-            background: #fff;
+            background: #0a0a0a;
         }
 
         .habit-checkbox.checked {
@@ -170,16 +196,17 @@
         .habit-name {
             font-size: 15px;
             font-weight: 500;
+            color: #e0e0e0;
         }
 
         .habit-xp {
             font-size: 12px;
-            color: #888;
+            color: #555;
         }
 
         .habit-name.done {
             text-decoration: line-through;
-            color: #aaa;
+            color: #444;
         }
 
         /* ===== STREAK ===== */
@@ -204,7 +231,7 @@
 
         .streak-label {
             font-size: 14px;
-            color: #888;
+            color: #666;
             text-align: center;
         }
 
@@ -221,13 +248,13 @@
             padding: 8px 4px;
             border-radius: 8px;
             font-size: 12px;
-            background: #f8f9fa;
+            background: #1a1a1a;
         }
 
         .week-day .day-label {
             font-weight: 700;
             margin-bottom: 4px;
-            color: #666;
+            color: #777;
         }
 
         .week-day .day-score {
@@ -237,16 +264,16 @@
         }
 
         .week-day.today {
-            background: #eef1ff;
+            background: #111;
             border: 2px solid #4361ee;
         }
 
         .week-day.complete {
-            background: #d4f5e9;
+            background: #0a2e1f;
         }
 
         .week-day.weekend {
-            opacity: 0.5;
+            opacity: 0.4;
         }
 
         .week-day.weekend.active {
@@ -256,13 +283,14 @@
         /* ===== CONGRATULATIONS ===== */
         .congrats {
             display: none;
-            background: linear-gradient(135deg, #06d6a0, #2ec4b6);
+            background: linear-gradient(135deg, #064e3b, #0a3d3d);
             color: #fff;
             border-radius: 12px;
             padding: 20px;
             text-align: center;
             margin-bottom: 16px;
             animation: slideIn 0.4s ease;
+            border: 1px solid #0d6e4f;
         }
 
         .congrats.show { display: block; }
@@ -279,24 +307,24 @@
         /* ===== SETTINGS / EDIT PANEL ===== */
         .settings-btn {
             background: none;
-            border: 1px solid #ddd;
+            border: 1px solid #333;
             border-radius: 8px;
             padding: 6px 14px;
             font-size: 13px;
             cursor: pointer;
-            color: #666;
+            color: #888;
             transition: all 0.2s;
         }
 
         .settings-btn:hover {
-            background: #f0f2f5;
-            border-color: #bbb;
+            background: #1a1a1a;
+            border-color: #555;
         }
 
         .edit-panel {
             display: none;
             margin-top: 14px;
-            border-top: 1px solid #eee;
+            border-top: 1px solid #222;
             padding-top: 14px;
         }
 
@@ -312,18 +340,22 @@
         .edit-row input[type="text"] {
             flex: 1;
             padding: 8px 12px;
-            border: 1px solid #ddd;
+            border: 1px solid #333;
             border-radius: 8px;
             font-size: 14px;
+            background: #0a0a0a;
+            color: #e0e0e0;
         }
 
         .edit-row input[type="number"] {
             width: 70px;
             padding: 8px 10px;
-            border: 1px solid #ddd;
+            border: 1px solid #333;
             border-radius: 8px;
             font-size: 14px;
             text-align: center;
+            background: #0a0a0a;
+            color: #e0e0e0;
         }
 
         .edit-row button {
@@ -335,11 +367,11 @@
         }
 
         .btn-remove {
-            background: #fee;
+            background: #2a0a0a;
             color: #e63946;
         }
 
-        .btn-remove:hover { background: #fdd; }
+        .btn-remove:hover { background: #3a1010; }
 
         .btn-add {
             background: #4361ee;
@@ -362,7 +394,7 @@
 
         .toggle-row label {
             font-size: 14px;
-            color: #555;
+            color: #888;
         }
 
         .toggle-switch {
@@ -381,7 +413,7 @@
             position: absolute;
             cursor: pointer;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: #ccc;
+            background: #333;
             border-radius: 12px;
             transition: 0.3s;
         }
@@ -417,21 +449,22 @@
 
         .date-nav button {
             background: none;
-            border: 1px solid #ddd;
+            border: 1px solid #333;
             border-radius: 8px;
             padding: 6px 12px;
             cursor: pointer;
             font-size: 16px;
-            color: #666;
+            color: #888;
         }
 
-        .date-nav button:hover { background: #f0f2f5; }
+        .date-nav button:hover { background: #1a1a1a; }
 
         .date-nav .current-date {
             font-size: 15px;
             font-weight: 600;
             min-width: 180px;
             text-align: center;
+            color: #e0e0e0;
         }
 
         .today-btn {
@@ -451,16 +484,16 @@
         .month-grid .mg-day {
             aspect-ratio: 1;
             border-radius: 4px;
-            background: #f0f2f5;
+            background: #1a1a1a;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 10px;
-            color: #aaa;
+            color: #555;
         }
 
-        .month-grid .mg-day.has-data { background: #dbeafe; color: #4361ee; font-weight: 600; }
-        .month-grid .mg-day.perfect { background: #06d6a0; color: #fff; }
+        .month-grid .mg-day.has-data { background: #0c1a3a; color: #4361ee; font-weight: 600; }
+        .month-grid .mg-day.perfect { background: #064e3b; color: #06d6a0; }
         .month-grid .mg-day.today-cell { border: 2px solid #4361ee; }
 
         /* ===== RESPONSIVE ===== */
@@ -468,6 +501,7 @@
             body { padding: 10px; }
             .score-strip { grid-template-columns: 1fr; }
             .score-box .value { font-size: 22px; }
+            .goal-text { font-size: 22px; }
         }
     </style>
 </head>
@@ -483,6 +517,12 @@
             <button onclick="navigateDay(1)">&#9654;</button>
             <button class="today-btn" onclick="goToToday()">Vandaag</button>
         </div>
+    </div>
+
+    <!-- GOAL -->
+    <div class="goal-banner">
+        <div class="goal-label">Mijn doel</div>
+        <div class="goal-text">€32k per maand verdienen met het traden van crypto</div>
     </div>
 
     <!-- CONGRATULATIONS -->
@@ -937,7 +977,7 @@ function renderMonth() {
         el.className = 'mg-day';
         el.style.background = 'none';
         el.style.fontWeight = '700';
-        el.style.color = '#888';
+        el.style.color = '#555';
         el.textContent = dh;
         grid.appendChild(el);
     }
