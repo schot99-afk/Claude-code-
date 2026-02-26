@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=65", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "budget_tool"
+version = "0.1.0"
+description = "Python-based budget analysis tool"
+requires-python = ">=3.10"
+dependencies = [
+  "pandas>=2.0.0",
+  "pyyaml>=6.0",
+  "openpyxl>=3.1.0",
+  "pyarrow>=14.0.0",
+  "flask>=3.0.0"
+]
+
+[project.scripts]
+budget = "budget_tool.cli:main"
+budget-web = "budget_tool.web:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["budget_tool*"]
+
+[tool.setuptools.package-data]
+budget_tool = ["templates/*.html", "static/*.css"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

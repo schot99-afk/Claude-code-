@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Preview {{ month }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  </head>
+  <body>
+    <main class="container">
+      <a href="{{ url_for('home') }}">← terug</a>
+      <h1>Budget preview {{ month }}</h1>
+
+      <section class="card">
+        <h2>Samenvatting</h2>
+        <p><strong>Netto cashflow:</strong> {{ summary.net_cashflow }}</p>
+      </section>
+
+      <section class="grid">
+        <div class="card">
+          <h2>Inkomsten per categorie</h2>
+          <table>
+            <tr><th>Categorie</th><th>Totaal</th></tr>
+            {% for row in income %}
+            <tr><td>{{ row.category }}</td><td>{{ row.total_income }}</td></tr>
+            {% endfor %}
+          </table>
+        </div>
+
+        <div class="card">
+          <h2>Uitgaven per categorie</h2>
+          <table>
+            <tr><th>Categorie</th><th>Totaal</th></tr>
+            {% for row in expenses %}
+            <tr><td>{{ row.category }}</td><td>{{ row.total_expenses }}</td></tr>
+            {% endfor %}
+          </table>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Top 10 descriptions/merchants</h2>
+        <table>
+          <tr><th>Description</th><th>Totaal</th><th>Aantal</th></tr>
+          {% for row in top %}
+          <tr><td>{{ row.description }}</td><td>{{ row.total_amount }}</td><td>{{ row.count }}</td></tr>
+          {% endfor %}
+        </table>
+      </section>
+    </main>
+  </body>
+</html>
