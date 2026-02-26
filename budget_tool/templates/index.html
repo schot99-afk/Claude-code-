@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>budget_tool dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  </head>
+  <body>
+    <main class="container">
+      <h1>budget_tool</h1>
+      <p>Start hier met je budgetanalyse en bekijk direct een maandpreview.</p>
+
+      <section class="card">
+        <h2>Pipeline draaien</h2>
+        <form method="post" action="{{ url_for('run_pipeline') }}">
+          <label for="csv_path">CSV pad</label>
+          <input id="csv_path" name="csv_path" value="data/sample_generic.csv" />
+
+          <label for="month">Maand (optioneel, YYYY-MM)</label>
+          <input id="month" name="month" placeholder="2024-01" />
+
+          <button type="submit">Run import + categorize + report</button>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>Beschikbare maandpreviews</h2>
+        {% if months %}
+        <ul>
+          {% for month in months %}
+          <li>
+            <a href="{{ url_for('preview', month=month) }}">Preview {{ month }}</a>
+            · <a href="{{ url_for('download', month=month, fmt='xlsx') }}">Download xlsx</a>
+            · <a href="{{ url_for('download', month=month, fmt='html') }}">Download html</a>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p>Nog geen data. Draai eerst de pipeline.</p>
+        {% endif %}
+      </section>
+    </main>
+  </body>
+</html>

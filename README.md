@@ -19,6 +19,7 @@
   - top 10 descriptions/merchants
 - Export naar Excel en HTML.
 - Parquet tussenstappen.
+- Web dashboard voor pipeline-run, preview en report downloads.
 
 ## Installatie
 
@@ -57,6 +58,27 @@ Dit maakt:
 - `reports/budget_report_2024-01.xlsx`
 - `reports/budget_report_2024-01.html`
 
+## Web dashboard
+
+Start de website lokaal:
+
+```bash
+budget-web
+```
+
+Open daarna in je browser:
+
+```text
+http://localhost:8000
+```
+
+Wat je kunt doen in de UI:
+- CSV pad invullen (standaard `data/sample_generic.csv`)
+- Pipeline draaien (import + categorize)
+- Optioneel direct een maandrapport genereren
+- Maandpreview bekijken
+- XLSX/HTML rapporten downloaden
+
 ## Voorbeelddata
 
 - `data/sample_generic.csv` bevat 30 neptranacties.
@@ -71,3 +93,4 @@ Geteste onderdelen:
 - CSV → canonieke mapping
 - categorisatie + fallback
 - rapportberekeningen voor sample data
+- webpagina routes
