@@ -1,0 +1,27 @@
+categories:
+  - name: Wonen
+    subcategories: [Huur, Hypotheek, Energie, Water, Internet]
+  - name: Boodschappen
+    subcategories: [Supermarkt, Drogist]
+  - name: Uit eten & horeca
+    subcategories: [Restaurant, Cafe, Bezorgen]
+  - name: Sport & gezondheid
+    subcategories: [Sportschool, Zorgverzekering, Apotheek]
+  - name: Abonnementen
+    subcategories: [Streaming, Software, Telefoon]
+  - name: Persoonlijk
+    subcategories: [Kleding, Cadeaus, Verzorging]
+  - name: Vakantie & reizen
+    subcategories: [OV, Vliegtickets, Hotels]
+  - name: Crypto & trading
+    subcategories: [Exchange, Fees]
+  - name: Investeringen
+    subcategories: [ETF, Aandelen, Broker]
+  - name: Sparen
+    subcategories: [Spaarrekening, Buffer]
+  - name: Inkomen werk
+    subcategories: [Salaris, Bonus, Freelance]
+  - name: Inkomen beleggingen
+    subcategories: [Dividend, Rente]
+  - name: Ongecategoriseerd
+    subcategories: [Overig]

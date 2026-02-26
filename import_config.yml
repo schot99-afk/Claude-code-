@@ -1,0 +1,8 @@
+columns:
+  date: transaction_date
+  amount: amount
+  description: description
+  account: account
+date_format: "%Y-%m-%d"
+delimiter: ","
+decimal: "."
