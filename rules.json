@@ -1,0 +1,19 @@
+{
+  "watchlist": {
+    "majors": ["BINANCE:BTCUSDT", "BINANCE:ETHUSDT", "BINANCE:SOLUSDT"],
+    "alts": ["BINANCE:LINKUSDT", "BINANCE:AVAXUSDT", "BINANCE:SUIUSDT"],
+    "macro": ["CRYPTOCAP:TOTAL", "CRYPTOCAP:TOTAL3", "CRYPTOCAP:BTC.D"]
+  },
+  "timeframes_to_check": ["1W", "1D", "4H"],
+  "bias_criteria": {
+    "bullish": "Prijs boven 50D EMA, RSI op dagelijks tussen 45 en 70, hogere highs en hogere lows op 4H",
+    "bearish": "Prijs onder 50D EMA, RSI op dagelijks onder 45, lagere highs en lagere lows op 4H",
+    "neutral": "Prijs schommelt rond 50D EMA, RSI tussen 40 en 60, geen duidelijke structuur"
+  },
+  "risk_rules": {
+    "max_risk_per_trade": "1% van portfolio",
+    "min_rr_ratio": 2,
+    "no_trades_during": ["grote US CPI", "FOMC", "weekend dunne liquiditeit"]
+  },
+  "indicators_i_care_about": ["RSI (14)", "MACD (12, 26, 9)", "50 EMA", "200 EMA", "Volume"]
+}
